@@ -1,0 +1,572 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; {% if add %}{% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+      {% change_form_object_tools %}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
+<div>
+{% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+{% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+{% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
+{% if errors %}
+    <p class="errornote">
+    {% if errors|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}
+    </p>
+    {{ adminform.form.non_field_errors }}
+{% endif %}
+
+{% block field_sets %}
+{% for fieldset in adminform %}
+  {% include "admin/includes/fieldset.html" %}
+{% endfor %}
+{% endblock %}
+
+{% block after_field_sets %}{% endblock %}
+
+{% block inline_field_sets %}
+{% for inline_admin_formset in inline_admin_formsets %}
+    {% include inline_admin_formset.opts.template %}
+{% endfor %}
+{% endblock %}
+
+{% block after_related_objects %}{% endblock %}
+
+{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+
+{% block admin_change_form_document_ready %}
+    <script id="django-admin-form-add-constants"
+            src="{% static 'admin/js/change_form.js' %}"
+            {% if adminform and add %}
+                data-model-name="{{ opts.model_name }}"
+            {% endif %}
+            async>
+    </script>
+{% endblock %}
+
+{# JavaScript for prepopulated fields #}
+{% prepopulated_fields_js %}
+
+</div>
+</form></div>
+
+<style type="text/css">
+body {
+  margin:0;
+  padding:0;
+}
+input:focus {
+    outline: 0;
+    border-color: #0a81b1;
+  }
+  .vDateField, .vTimeField {
+    margin-right: 2px;
+    margin-bottom: 4px;
+}
+
+.vDateField {
+    min-width: 6.85em;
+}
+
+.vTimeField {
+    min-width: 4.7em;
+}
+
+  input[type="radio"] + label,
+  select {
+      
+    display: inline-block;
+    width: 50%;
+    text-align: center;
+    float: left;
+    border-radius: 0;
+    padding:5px;
+    margin:0px 10px;
+  }
+ select:focus,
+  select:active {
+    background-color: #0a81b1;
+    color: #fff;
+   
+  }
+  
+ 
+ 
+  @media only screen and (max-width: 540px) {
+    .col-half {
+      width: 100%;
+      padding-right: 0;
+    }
+  }
+  @import url('widgets.css');
+
+/* FORM ROWS */
+
+.form-row {
+    overflow: hidden;
+    padding: 10px;
+    font-size: 16px;
+    border-bottom: 1px solid var(--hairline-color);
+}
+
+.vDateField, .vTimeField {
+    margin-right: 2px;
+    margin-bottom: 4px;
+}
+
+.vDateField {
+    min-width: 6.85em;
+}
+
+.vTimeField {
+    min-width: 4.7em;
+}
+
+
+
+// extends
+.animate {
+	transition: all 0.3s;
+}
+
+
+.form-row .vTextField, textarea  {
+ -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #1976D2 !important;
+    outline-width: 0
+}
+ .form-row label {
+  position: relative;
+  top:0;
+  left: 0;
+  padding: 10px 0;
+  font-size: 16px;
+  color: #000;
+  pointer-events: none;
+  transition: .5s;
+
+  
+}
+
+.form-row input:focus ~ label,
+ .form-row input:valid ~ label {
+  top: -20px;
+  left: 0;
+  color: #03e9f4;
+  font-size: 12px;
+}
+
+ form .submit-row {
+  position: relative;
+  display: inline-block;
+  padding: 10px 20px;
+  color: #03e9f4;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: .5s;
+  margin-top: 40px;
+  letter-spacing: 4px
+}
+.form-row label input[type="checkbox"] {
+    margin-top: 0;
+    vertical-align: 0;
+}
+
+form .form-row p {
+    padding-left: 0;
+}
+
+/* FORM LABELS */
+
+label {
+    font-weight: normal;
+    color: var(--body-quiet-color);
+    font-size: 13px;
+}
+
+.required label, label.required {
+    font-weight: bold;
+    color: var(--body-fg);
+}
+
+/* RADIO BUTTONS */
+
+form ul.radiolist li {
+    list-style-type: none;
+}
+
+form ul.radiolist label {
+    float: none;
+    display: inline;
+}
+
+form ul.radiolist input[type="radio"] {
+    margin: -2px 4px 0 0;
+    padding: 0;
+}
+
+form ul.inline {
+    margin-left: 0;
+    padding: 0;
+}
+
+form ul.inline li {
+    float: left;
+    padding-right: 7px;
+}
+
+/* ALIGNED FIELDSETS */
+
+.aligned label {
+    display: block;
+    padding: 4px 10px 0 0;
+    float: left;
+    width: 160px;
+    word-wrap: break-word;
+    line-height: 1;
+}
+
+.aligned label:not(.vCheckboxLabel):after {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    height: 26px;
+}
+
+.aligned label + p, .aligned label + div.help, .aligned label + div.readonly {
+    padding: 6px 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 170px;
+}
+
+.aligned ul label {
+    display: inline;
+    float: none;
+    width: auto;
+}
+
+.aligned .form-row input {
+    margin-bottom: 0;
+}
+
+.colMS .aligned .vLargeTextField, .colMS .aligned .vXMLLargeTextField {
+    width: 350px;
+}
+
+form .aligned ul {
+    margin-left: 160px;
+    padding-left: 10px;
+}
+
+form .aligned ul.radiolist {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+form .aligned p.help,
+form .aligned div.help {
+    clear: left;
+    margin-top: 0;
+    margin-left: 160px;
+    padding-left: 10px;
+}
+
+form .aligned label + p.help,
+form .aligned label + div.help {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+form .aligned p.help:last-child,
+form .aligned div.help:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+form .aligned input + p.help,
+form .aligned textarea + p.help,
+form .aligned select + p.help,
+form .aligned input + div.help,
+form .aligned textarea + div.help,
+form .aligned select + div.help {
+    margin-left: 160px;
+    padding-left: 10px;
+}
+
+form .aligned ul li {
+    list-style: none;
+}
+
+form .aligned table p {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.aligned .vCheckboxLabel {
+    float: none;
+    width: auto;
+    display: inline-block;
+    vertical-align: -3px;
+    padding: 0 0 5px 5px;
+}
+
+.aligned .vCheckboxLabel + p.help,
+.aligned .vCheckboxLabel + div.help {
+    margin-top: -4px;
+}
+
+.colM .aligned .vLargeTextField, .colM .aligned .vXMLLargeTextField {
+    width: 610px;
+}
+
+.checkbox-row p.help,
+.checkbox-row div.help {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+fieldset .fieldBox {
+    float: left;
+    margin-right: 20px;
+}
+
+/* WIDE FIELDSETS */
+
+.wide label {
+    width: 200px;
+}
+
+form .wide p,
+form .wide input + p.help,
+form .wide input + div.help {
+    margin-left: 200px;
+}
+
+form .wide p.help,
+form .wide div.help {
+    padding-left: 38px;
+}
+
+form div.help ul {
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.colM fieldset.wide .vLargeTextField, .colM fieldset.wide .vXMLLargeTextField {
+    width: 450px;
+}
+
+/* COLLAPSED FIELDSETS */
+
+fieldset.collapsed * {
+    display: none;
+}
+
+fieldset.collapsed h2, fieldset.collapsed {
+    display: block;
+}
+
+fieldset.collapsed {
+    border: 1px solid var(--hairline-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+fieldset.collapsed h2 {
+    background: var(--darkened-bg);
+    color: var(--body-quiet-color);
+}
+
+fieldset .collapse-toggle {
+    color: var(--header-link-color);
+}
+
+fieldset.collapsed .collapse-toggle {
+    background: transparent;
+    display: inline;
+    color: var(--link-fg);
+}
+
+/* MONOSPACE TEXTAREAS */
+
+fieldset.monospace textarea {
+    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+}
+
+/* SUBMIT ROW */
+
+
+body.popup .submit-row {
+    overflow: auto;
+}
+
+.submit-row input {
+    height: 35px;
+    line-height: 15px;
+    margin: 0 0 0 5px;
+}
+
+.submit-row input.default {
+    margin: 0 0 0 8px;
+    text-transform: uppercase;
+}
+
+.submit-row p {
+    margin: 0.3em;
+}
+
+.submit-row p.deletelink-box {
+    float: left;
+    margin: 0;
+}
+
+.submit-row a.deletelink {
+    display: block;
+    background: var(--delete-button-bg);
+    border-radius: 4px;
+    padding: 10px 15px;
+    height: 15px;
+    line-height: 15px;
+    color: var(--button-fg);
+}
+
+.submit-row a.closelink {
+    display: inline-block;
+    background: var(--close-button-bg);
+    border-radius: 4px;
+    padding: 10px 15px;
+    height: 15px;
+    line-height: 15px;
+    margin: 0 0 0 5px;
+    color: var(--button-fg);
+}
+
+.submit-row a.deletelink:focus,
+.submit-row a.deletelink:hover,
+.submit-row a.deletelink:active {
+    background: var(--delete-button-hover-bg);
+}
+
+.submit-row a.closelink:focus,
+.submit-row a.closelink:hover,
+.submit-row a.closelink:active {
+    background: var(--close-button-hover-bg);
+}
+
+/* CUSTOM FORM FIELDS */
+
+.vSelectMultipleField {
+    vertical-align: top;
+}
+
+.vCheckboxField {
+    border: none;
+}
+
+.vDateField, .vTimeField {
+    margin-right: 2px;
+    margin-bottom: 4px;
+   
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #1976D2 !important;
+    outline-width: 0
+}
+
+.vDateField {
+    min-width: 6.85em;
+}
+
+.vTimeField {
+    min-width: 4.7em;
+}
+
+.vURLField {
+    width: 30em;
+}
+
+.vLargeTextField, .vXMLLargeTextField {
+    width: 48em;
+}
+
+.flatpages-flatpage #id_content {
+    height: 40.2em;
+}
+
+.module table .vPositiveSmallIntegerField {
+    width: 2.2em;
+}
+
+.vTextField, .vUUIDField {
+    width: 20em;
+}
+
+.vIntegerField {
+    width: 5em;
+}
+
+.vBigIntegerField {
+    width: 10em;
+}
+
+.vForeignKeyRawIdAdminField {
+    width: 5em;
+}
+
+/* INLINES */
+
+.inline-group {
+    padding: 0;
+    margin: 0 0 30px;
+}
+
+.inline-group thead th {
+    padding: 8px 10px;
+}
+
+.inline-group .aligned label {
+    width: 160px;
+}
+
+
+
+
+
+
+</style>
+{% endblock %}

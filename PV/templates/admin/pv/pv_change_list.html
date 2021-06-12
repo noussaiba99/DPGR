@@ -1,0 +1,20 @@
+ {% extends 'admin/change_list.html' %} 
+ {% block object-tools %}
+
+     <form class="form" id="generatePV-form" method="POST">
+     {% csrf_token %}
+     <button name="generer" class="button" type="submit">
+     Générer PV
+     </button> 
+     
+     </form>
+     <br>
+     <script>
+     let generatePvForm= document.querySelector('#generatePV-form')
+      generatePvForm.querySelector('input[name="generer]').addEventListener('submit',function(e){
+          let generer=e.target.value
+          generatePvForm.action='generer/'+generer+''
+      })
+     </script>
+     {{ block.super }}
+ {% endblock object-tools %}

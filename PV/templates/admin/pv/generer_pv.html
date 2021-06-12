@@ -1,0 +1,17 @@
+ {% block object-tools %}
+
+     <!--<form class="form" id="generatePV-form" method="POST">
+     {% csrf_token %}
+     <button name="generer" class="button" type="submit">
+     Générer PV
+     </button> 
+     
+     </form>>-->
+     <a href="/'{% url 'script' %}'">Générer PV</a>
+        {% if data %}
+        {{data}}
+        {%endif%}
+     <br />
+    
+     {{ block.super }}
+ {% endblock object-tools %}

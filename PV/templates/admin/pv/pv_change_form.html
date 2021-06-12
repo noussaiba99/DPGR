@@ -1,0 +1,13 @@
+{% extends 'admin/change_form.html' %}
+
+{% block object-tools %}
+    <div>
+       
+        <form action="generer_pv/" method="POST">
+            {% csrf_token %}
+                <button type="submit">Générer PV</button>
+        </form>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}
