@@ -7,6 +7,7 @@ from django.core import mail
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 logger = logging.getLogger(__name__)
 
 
@@ -237,21 +238,31 @@ def partager_pv(requestt,pv_i):
         pdf = buffer.getvalue()
         buffer.close()
         responsee.write(pdf)
-        
-        fromaddr = "communication.dpgr.esi.2021@gmail.com"
-        toaddr = "hn_aboutaleb@esi.dz"
-        msg = MIMEMultipart()
-        msg['From'] = fromaddr
-        msg['To'] = toaddr
-        msg['Subject'] = "[PV de la réunion]"+" ["+titre+" ]"+" [le   ]"
-        body = "Write your message here"
-        msg.attach(MIMEText(body, 'plain'))
-        #msg.attach('file.pdf', p, 'image/png')
-        server = smtplib.SMTP('smtp.gmail.com:587')
-        server.starttls()
-        server.login(fromaddr, "DpgrEsi2021")
-        text = msg.as_string()
-        server.sendmail(fromaddr, toaddr, text)
-        server.quit()
+        mailList=[a.email for a in pres]
+        print(mailList)
+        for recept in mailList:
+            fromaddr = "communication.dpgr.esi.2021@gmail.com"
+            toaddr = recept
+            msg = MIMEMultipart()
+            msg['From'] = fromaddr
+            msg['To'] = toaddr
+            msg['Subject'] = titre
+            body = "Write your message here"
+            with open("C:/Users/Win8.1/Downloads/toto.pdf", "rb") as f:
+                #attach = email.mime.application.MIMEApplication(f.read(),_subtype="pdf")
+                attach = MIMEApplication(f.read(),_subtype="pdf")
+            
+            attach.add_header('Content-Disposition','attachment',filename=str("C:/Users/Win8.1/Downloads/toto.pdf"))
+            msg.attach(attach)
+            
+            
+            
+            #msg.attach('file.pdf', p, 'image/png')
+            server = smtplib.SMTP('smtp.gmail.com:587')
+            server.starttls()
+            server.login(fromaddr, "DpgrEsi2021")
+            text = msg.as_string()
+            server.sendmail(fromaddr, toaddr, text)
+            server.quit()
         return responsee    
     return HttpResponse(status=400)
