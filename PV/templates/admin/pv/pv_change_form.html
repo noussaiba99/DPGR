@@ -1,13 +1,83 @@
 {% extends 'admin/change_form.html' %}
 
 {% block object-tools %}
-    <div>
-       
-        <form action="generer_pv/" method="POST">
+    <div class="btn-group">
+        <form action="{% url "generer_pv" pv_id=original.pk %}" method="POST">
             {% csrf_token %}
-                <button type="submit">Générer PV</button>
+            <button class="butt"type="submit">Générer PV</button>
+        </form>
+        <form action="{% url "partager_pv" pv_i=original.pk %}" method="POST">
+            {% csrf_token %}
+            <button class="buttt"type="submit">Partager PV</button>
         </form>
     </div>
-    <br />
+    <br/>
     {{ block.super }}
+<style type="text/css">
+.btn-group button {
+  border: 1px solid;
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+.butt{  
+background:#0a81b1;
+ bposition: relative;
+  padding: 5px 10px;
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: .5s;
+  margin-top: 20px;
+  margin-left: 20px;
+  letter-spacing: 4px
+}
+.buttt{  
+    display:inline;
+background:#041544;
+ bposition: relative;
+  padding: 5px 10px;
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: .5s;
+  margin-top: 20px;
+  margin-left: 20px;
+  letter-spacing: 4px
+}
+.butt:hover{
+background: #041544;
+  color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px #041544;
+              0 0 25px #041544;
+              0 0 50px #041544;
+              0 0 100px #041544;
+}
+
+.buttt:hover{
+background: #0a81b1;
+  color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px #041544;
+              0 0 25px #041544;
+              0 0 50px #041544;
+              0 0 100px #041544;
+}
+
+</style>
 {% endblock %}
