@@ -1,4 +1,6 @@
-from django.shortcuts import render
+import os
+from django.http.response import HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.http import HttpResponse, Http404
 from .models import PV,Acteur
 import logging
@@ -8,6 +10,12 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from django.core.mail import EmailMessage
+from DPGR.settings import EMAIL_HOST_USER
+from django.contrib import messages
+from django.db.models.functions import Cast
+from django.db.models import CharField
+from django.core.mail import send_mail
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +35,8 @@ def generer_pv(request, pv_id):
         pv = PV.objects.get(pk=pv_id)
         titre = pv.titre
         date= pv.date
+        datee=date.strftime('%d-%m-%Y')
+        heure=date.strftime('%H:%M')
         odj=pv.ordreDuJour
         pa=pv.pointAborde
         contenu= pv.contenu
@@ -37,7 +47,7 @@ def generer_pv(request, pv_id):
         p.drawString(250,800,titre)
         p.setFillColor(grey)
         p.setFont("Helvetica",12)
-        p.drawString(220,780,"Rédigé le "+str(date))
+        p.drawString(220,780,"Rédigé le: "+datee+" à "+heure)
         p.setFillColor(black)
         p.setFont("Helvetica-Bold",14)
         p.drawString(50,750,"Les présents:")
@@ -117,13 +127,13 @@ def generer_pv(request, pv_id):
             j=j+1
         p.showPage()
         p.save()
-            # fName='PV'+ str(pv_id) +'.pdf'
+       
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{titre}.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="PV:{titre}"["{datee}].pdf"'
         pdf = buffer.getvalue()
         buffer.close()
         response.write(pdf)
-        return response    
+        return response   
     return HttpResponse(status=400)
 
 def partager_pv(requestt,pv_i):
@@ -142,6 +152,8 @@ def partager_pv(requestt,pv_i):
         pv = PV.objects.get(pk=pv_i)
         titre = pv.titre
         date= pv.date
+        datee=date.strftime('%d-%m-%Y')
+        heure=date.strftime('%H:%M')
         odj=pv.ordreDuJour
         pa=pv.pointAborde
         contenu= pv.contenu
@@ -152,9 +164,9 @@ def partager_pv(requestt,pv_i):
         p.drawString(250,800,titre)
         p.setFillColor(grey)
         p.setFont("Helvetica",12)
-        p.drawString(220,780,"Rédigé le "+str(date))
-        p.setFillColor(black)
+        p.drawString(220,780,"Rédigé le "+datee+" à "+heure)
         p.setFont("Helvetica-Bold",14)
+        p.setFillColor(black)
         p.drawString(50,750,"Les présents:")
 
         #la variable i c'est pour gérer l'espace interlignes
@@ -232,37 +244,20 @@ def partager_pv(requestt,pv_i):
             j=j+1
         p.showPage()
         p.save()
-            # fName='PV'+ str(pv_id) +'.pdf'
         responsee = HttpResponse(content_type='application/pdf')
-        responsee['Content-Disposition'] = f'attachment; filename="{titre}.pdf"'
+        responsee['Content-Disposition'] = f'attachment; filename="{titre}[{datee}].pdf"'
         pdf = buffer.getvalue()
         buffer.close()
-        responsee.write(pdf)
         mailList=[a.email for a in pres]
-        print(mailList)
-        for recept in mailList:
-            fromaddr = "communication.dpgr.esi.2021@gmail.com"
-            toaddr = recept
-            msg = MIMEMultipart()
-            msg['From'] = fromaddr
-            msg['To'] = toaddr
-            msg['Subject'] = titre
-            body = "Write your message here"
-            with open("C:/Users/Win8.1/Downloads/toto.pdf", "rb") as f:
-                #attach = email.mime.application.MIMEApplication(f.read(),_subtype="pdf")
-                attach = MIMEApplication(f.read(),_subtype="pdf")
-            
-            attach.add_header('Content-Disposition','attachment',filename=str("C:/Users/Win8.1/Downloads/toto.pdf"))
-            msg.attach(attach)
-            
-            
-            
-            #msg.attach('file.pdf', p, 'image/png')
-            server = smtplib.SMTP('smtp.gmail.com:587')
-            server.starttls()
-            server.login(fromaddr, "DpgrEsi2021")
-            text = msg.as_string()
-            server.sendmail(fromaddr, toaddr, text)
-            server.quit()
-        return responsee    
+        
+        fromaddr = "communication.dpgr.esi.2021@gmail.com"
+        subject = "[PV] ["+titre+" ]["+datee+"]"
+        body = "Vous trouverez ci-joint le pv intitulé : "+titre+" rédigé le:"+datee+". \n\n Cordialement,\n DPGR"
+        EmailMsg=EmailMessage(subject,body,fromaddr,mailList)
+        EmailMsg.attach('PV_'+titre+'.pdf',pdf,'application/pdf')
+        EmailMsg.send()
+        #messages.info(requestt, 'Le pv a été généré avec succès!')
+        messages.success(requestt, 'Le pv a été partagé avec succès!')
+        return redirect('../../../PV/pv')
+
     return HttpResponse(status=400)

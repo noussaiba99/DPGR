@@ -27,8 +27,8 @@ admin.site.unregister(Group)
 
 @admin.register(Acteur)
 class ActeurAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'prenom', 'email')
-    search_fields = ('nom', 'prenom', 'email')
+    list_display = ('nom', 'prenom', 'mission','email')
+    search_fields = ('nom', 'prenom', 'mission','email')
 
 
 @admin.register(PV)

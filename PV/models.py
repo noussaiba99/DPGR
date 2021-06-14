@@ -6,6 +6,7 @@ class Acteur(models.Model):
     nom = models.CharField(max_length=200)
     prenom = models.CharField(max_length=200)
     email = models.EmailField()
+    mission=models.CharField(max_length=200)
     def __str__(self):
        return (self.nom)+"  "+(self.prenom)
 
