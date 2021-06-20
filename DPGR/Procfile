@@ -1,1 +1,1 @@
-web: gunicorn PV.wsgi
+web: gunicorn DPGR.wsgi

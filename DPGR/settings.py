@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
-
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,7 +32,7 @@ if os.environ.get('ENV') == 'PRODUCTION':
 else:
     DEBUG = True
 
-ALLOWED_HOSTS = ['disquaire.herokuapp.com']
+ALLOWED_HOSTS = ['disquaire.herokuapp.com','localhost']
 
 
 # Application definition
@@ -185,3 +185,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'communication.dpgr.esi.2021@gmail.com'
 EMAIL_HOST_PASSWORD = 'DpgrEsi2021'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
