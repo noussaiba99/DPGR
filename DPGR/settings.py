@@ -32,7 +32,7 @@ if os.environ.get('ENV') == 'PRODUCTION':
 else:
     DEBUG = True
 
-ALLOWED_HOSTS = ['disquaire.herokuapp.com','localhost']
+ALLOWED_HOSTS = ['dpgr2021.herokuapp.com','localhost']
 
 
 # Application definition
